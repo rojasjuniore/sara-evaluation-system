@@ -2,6 +2,9 @@
   "name": "sara-evaluation-system",
   "version": "0.1.0",
   "private": true,
+  "prisma": {
+    "seed": "npx tsx prisma/seed.ts"
+  },
   "engines": {
     "node": ">=20.9.0"
   },
