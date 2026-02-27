@@ -80,8 +80,18 @@ export default function HomePage() {
 
       {/* Footer */}
       <footer className="border-t py-8">
-        <div className="container mx-auto px-4 text-center text-muted-foreground">
-          <p>© 2024 SARA - Sistema de Evaluación de Madurez</p>
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-muted-foreground">© 2024 SARA - Sistema de Evaluación de Madurez</p>
+            <div className="flex gap-6 text-sm">
+              <Link href="/admin" className="text-muted-foreground hover:text-primary transition-colors">
+                Panel Admin
+              </Link>
+              <Link href="/evaluacion/demo" className="text-muted-foreground hover:text-primary transition-colors">
+                Evaluación Demo
+              </Link>
+            </div>
+          </div>
         </div>
       </footer>
     </main>
