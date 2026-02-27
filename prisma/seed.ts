@@ -1,9 +1,30 @@
 import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
 async function main() {
   console.log("🌱 Seeding database...");
+
+  // 0. Crear usuario admin por defecto
+  const adminExists = await prisma.adminUser.findUnique({
+    where: { email: "admin@sara.com" },
+  });
+
+  if (!adminExists) {
+    const hashedPassword = await bcrypt.hash("admin123", 10);
+    await prisma.adminUser.create({
+      data: {
+        email: "admin@sara.com",
+        name: "Administrador",
+        password: hashedPassword,
+        role: "superadmin",
+      },
+    });
+    console.log("✅ Usuario admin creado: admin@sara.com / admin123");
+  } else {
+    console.log("ℹ️ Usuario admin ya existe");
+  }
 
   // 1. Crear evaluación principal
   const evaluacion = await prisma.evaluacion.create({

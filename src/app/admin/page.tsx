@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useSession, signOut } from "next-auth/react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -13,7 +14,9 @@ import {
   Users,
   BarChart3,
   Plus,
-  ArrowRight
+  ArrowRight,
+  LogOut,
+  User
 } from "lucide-react";
 
 interface DashboardStats {
@@ -25,6 +28,7 @@ interface DashboardStats {
 }
 
 export default function AdminDashboard() {
+  const { data: session } = useSession();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -98,16 +102,25 @@ export default function AdminDashboard() {
               <h1 className="text-2xl font-bold">Panel de Administración</h1>
               <p className="text-muted-foreground">Sistema de Evaluación de Madurez</p>
             </div>
-            <div className="flex gap-2">
-              <Button variant="outline" asChild>
-                <Link href="/">Ver sitio público</Link>
-              </Button>
-              <Button asChild>
-                <Link href="/admin/evaluaciones/nueva">
-                  <Plus className="mr-2 h-4 w-4" />
-                  Nueva Evaluación
-                </Link>
-              </Button>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <User className="h-4 w-4" />
+                <span>{session?.user?.email}</span>
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline" asChild>
+                  <Link href="/">Ver sitio público</Link>
+                </Button>
+                <Button asChild>
+                  <Link href="/admin/evaluaciones/nueva">
+                    <Plus className="mr-2 h-4 w-4" />
+                    Nueva Evaluación
+                  </Link>
+                </Button>
+                <Button variant="ghost" size="icon" onClick={() => signOut({ callbackUrl: "/admin/login" })}>
+                  <LogOut className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           </div>
         </div>
