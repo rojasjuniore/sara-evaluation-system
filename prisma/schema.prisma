@@ -1,0 +1,267 @@
+// Sistema de Evaluación de Madurez - SARA
+// Prisma Schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// =============================================
+// MÓDULO: CONFIGURACIÓN DE EVALUACIONES
+// =============================================
+
+model Evaluacion {
+  id          String   @id @default(uuid())
+  nombre      String
+  descripcion String?
+  version     String   @default("1.0")
+  activa      Boolean  @default(true)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relaciones
+  configuracionLlm       ConfiguracionLlm?
+  camposCaracterizacion  CampoCaracterizacion[]
+  dimensiones            Dimension[]
+  sesiones               SesionEvaluacion[]
+  caracterizaciones      CaracterizacionRespuesta[]
+
+  @@map("evaluaciones")
+}
+
+model ConfiguracionLlm {
+  id           String  @id @default(uuid())
+  evaluacionId String  @unique @map("evaluacion_id")
+  provider     String  @default("anthropic")
+  model        String  @default("claude-sonnet-4-20250514")
+  systemPrompt String  @map("system_prompt")
+  temperature  Float   @default(0.7)
+  maxTokens    Int     @default(4000) @map("max_tokens")
+  activa       Boolean @default(true)
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  evaluacion Evaluacion @relation(fields: [evaluacionId], references: [id], onDelete: Cascade)
+
+  @@map("configuracion_llm")
+}
+
+model CampoCaracterizacion {
+  id           String   @id @default(uuid())
+  evaluacionId String   @map("evaluacion_id")
+  nombre       String   // nombre técnico (ej: "sector")
+  label        String   // label UI (ej: "Sector Industrial")
+  tipo         String   // text, select, multiselect, number
+  opciones     Json?    // para select/multiselect: ["Fintech", "Retail", ...]
+  requerido    Boolean  @default(true)
+  orden        Int      @default(0)
+  placeholder  String?
+  validacion   Json?    // reglas: {"min": 1, "max": 100, "pattern": "..."}
+
+  evaluacion    Evaluacion                 @relation(fields: [evaluacionId], references: [id], onDelete: Cascade)
+  respuestas    CaracterizacionRespuesta[]
+
+  @@map("campos_caracterizacion")
+}
+
+model Dimension {
+  id           String  @id @default(uuid())
+  evaluacionId String  @map("evaluacion_id")
+  nombre       String
+  descripcion  String?
+  peso         Float   @default(1.0)
+  orden        Int     @default(0)
+  icono        String?
+  color        String?
+
+  evaluacion         Evaluacion           @relation(fields: [evaluacionId], references: [id], onDelete: Cascade)
+  preguntas          Pregunta[]
+  recomendacionesBase RecomendacionBase[]
+  resultados         ResultadoDimension[]
+
+  @@map("dimensiones")
+}
+
+model Pregunta {
+  id                       String  @id @default(uuid())
+  dimensionId              String  @map("dimension_id")
+  texto                    String
+  tipo                     String  // 'single' (radio) | 'multiple' (checkbox)
+  requiereJustificacion    Boolean @default(false) @map("requiere_justificacion")
+  justificacionObligatoria Boolean @default(false) @map("justificacion_obligatoria")
+  justificacionPlaceholder String? @map("justificacion_placeholder")
+  orden                    Int     @default(0)
+  peso                     Float   @default(1.0)
+  activa                   Boolean @default(true)
+
+  dimension  Dimension          @relation(fields: [dimensionId], references: [id], onDelete: Cascade)
+  opciones   OpcionRespuesta[]
+  respuestas RespuestaCuestionario[]
+
+  @@map("preguntas")
+}
+
+model OpcionRespuesta {
+  id         String @id @default(uuid())
+  preguntaId String @map("pregunta_id")
+  texto      String
+  puntaje    Float  // ej: 0, 25, 50, 75, 100
+  orden      Int    @default(0)
+
+  pregunta Pregunta @relation(fields: [preguntaId], references: [id], onDelete: Cascade)
+
+  @@map("opciones_respuesta")
+}
+
+model RecomendacionBase {
+  id               String  @id @default(uuid())
+  dimensionId      String  @map("dimension_id")
+  puntajeMin       Float   @map("puntaje_min")
+  puntajeMax       Float   @map("puntaje_max")
+  nivel            String? // ej: "Inicial", "En desarrollo", "Maduro"
+  titulo           String
+  descripcion      String
+  accionesSugeridas Json?  @map("acciones_sugeridas") // ["Acción 1", "Acción 2", ...]
+
+  dimension  Dimension            @relation(fields: [dimensionId], references: [id], onDelete: Cascade)
+  resultados ResultadoDimension[]
+
+  @@map("recomendaciones_base")
+}
+
+// =============================================
+// MÓDULO: EMPRESAS Y RESPUESTAS
+// =============================================
+
+model Empresa {
+  id        String   @id @default(uuid())
+  nombre    String
+  email     String
+  telefono  String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  caracterizaciones CaracterizacionRespuesta[]
+  sesiones          SesionEvaluacion[]
+
+  @@map("empresas")
+}
+
+model CaracterizacionRespuesta {
+  id           String   @id @default(uuid())
+  empresaId    String   @map("empresa_id")
+  evaluacionId String   @map("evaluacion_id")
+  campoId      String   @map("campo_id")
+  valor        Json     // soporta texto, arrays, números
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  empresa    Empresa              @relation(fields: [empresaId], references: [id], onDelete: Cascade)
+  evaluacion Evaluacion           @relation(fields: [evaluacionId], references: [id])
+  campo      CampoCaracterizacion @relation(fields: [campoId], references: [id])
+
+  @@map("caracterizacion_respuestas")
+}
+
+model SesionEvaluacion {
+  id            String    @id @default(uuid())
+  empresaId     String    @map("empresa_id")
+  evaluacionId  String    @map("evaluacion_id")
+  estado        String    @default("en_progreso") // en_progreso, completada, procesando, finalizada, error
+  puntajeGlobal Float?    @map("puntaje_global")
+  startedAt     DateTime  @default(now()) @map("started_at")
+  completedAt   DateTime? @map("completed_at")
+  ipAddress     String?   @map("ip_address")
+  userAgent     String?   @map("user_agent")
+
+  empresa     Empresa                 @relation(fields: [empresaId], references: [id], onDelete: Cascade)
+  evaluacion  Evaluacion              @relation(fields: [evaluacionId], references: [id])
+  respuestas  RespuestaCuestionario[]
+  resultados  ResultadoDimension[]
+  llmResponses LlmResponse[]
+  reportes    Reporte[]
+
+  @@index([empresaId, evaluacionId, completedAt(sort: Desc)])
+  @@map("sesiones_evaluacion")
+}
+
+model RespuestaCuestionario {
+  id                     String   @id @default(uuid())
+  sesionId               String   @map("sesion_id")
+  preguntaId             String   @map("pregunta_id")
+  opcionesSeleccionadas  String[] @map("opciones_seleccionadas") // array de opciones_respuesta.id
+  justificacion          String?
+  puntajeCalculado       Float?   @map("puntaje_calculado")
+  createdAt              DateTime @default(now()) @map("created_at")
+
+  sesion   SesionEvaluacion @relation(fields: [sesionId], references: [id], onDelete: Cascade)
+  pregunta Pregunta         @relation(fields: [preguntaId], references: [id])
+
+  @@map("respuestas_cuestionario")
+}
+
+model ResultadoDimension {
+  id                  String  @id @default(uuid())
+  sesionId            String  @map("sesion_id")
+  dimensionId         String  @map("dimension_id")
+  puntaje             Float
+  nivel               String? // calculado según rangos
+  recomendacionBaseId String? @map("recomendacion_base_id")
+
+  sesion            SesionEvaluacion   @relation(fields: [sesionId], references: [id], onDelete: Cascade)
+  dimension         Dimension          @relation(fields: [dimensionId], references: [id])
+  recomendacionBase RecomendacionBase? @relation(fields: [recomendacionBaseId], references: [id])
+
+  @@map("resultados_dimension")
+}
+
+// =============================================
+// MÓDULO: REPORTES E IA
+// =============================================
+
+model LlmResponse {
+  id            String   @id @default(uuid())
+  sesionId      String   @map("sesion_id")
+  promptEnviado String   @map("prompt_enviado")
+  respuestaLlm  String?  @map("respuesta_llm")
+  tokensInput   Int?     @map("tokens_input")
+  tokensOutput  Int?     @map("tokens_output")
+  latencyMs     Int?     @map("latency_ms")
+  status        String   // success, error, timeout
+  errorMessage  String?  @map("error_message")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  sesion SesionEvaluacion @relation(fields: [sesionId], references: [id], onDelete: Cascade)
+
+  @@map("llm_responses")
+}
+
+model Reporte {
+  id           String   @id @default(uuid())
+  sesionId     String   @map("sesion_id")
+  tipo         String   @default("pdf") // pdf, html
+  contenidoHtml String? @map("contenido_html")
+  archivoUrl   String?  @map("archivo_url")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  sesion  SesionEvaluacion  @relation(fields: [sesionId], references: [id], onDelete: Cascade)
+  envios  ReporteEnviado[]
+
+  @@map("reportes")
+}
+
+model ReporteEnviado {
+  id           String    @id @default(uuid())
+  reporteId    String    @map("reporte_id")
+  emailDestino String    @map("email_destino")
+  estado       String    @default("pendiente") // pendiente, enviado, error
+  intentos     Int       @default(0)
+  ultimoError  String?   @map("ultimo_error")
+  enviadoAt    DateTime? @map("enviado_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  reporte Reporte @relation(fields: [reporteId], references: [id], onDelete: Cascade)
+
+  @@map("reportes_enviados")
+}
