@@ -8,11 +8,27 @@ export async function GET() {
         evaluacion: {
           select: { nombre: true },
         },
+        empresa: {
+          select: { nombre: true, email: true },
+        },
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: { startedAt: "desc" },
     });
 
-    return NextResponse.json(sesiones);
+    // Transformar para compatibilidad con el frontend
+    const result = sesiones.map((s) => ({
+      id: s.id,
+      estado: s.estado,
+      puntajeGlobal: s.puntajeGlobal,
+      nivelGlobal: null, // Se calcula en base al puntaje
+      empresaNombre: s.empresa.nombre,
+      empresaEmail: s.empresa.email,
+      createdAt: s.startedAt,
+      completedAt: s.completedAt,
+      evaluacion: s.evaluacion,
+    }));
+
+    return NextResponse.json(result);
   } catch (error) {
     console.error("Error fetching sesiones:", error);
     return NextResponse.json(
