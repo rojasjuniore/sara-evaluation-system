@@ -94,17 +94,17 @@ export function ResultadosView({ sesionId }: ResultadosViewProps) {
   };
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8">
+    <div className="max-w-5xl mx-auto space-y-6 sm:space-y-8 px-2 sm:px-4">
       {/* Header con puntaje global */}
       <Card className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white">
-        <CardContent className="pt-8 pb-8">
-          <div className="text-center space-y-4">
-            <p className="text-lg opacity-90">Tu Nivel de Madurez</p>
-            <div className="flex items-center justify-center gap-4">
-              <div className="text-7xl font-bold">{resultados.puntajeGlobal}</div>
+        <CardContent className="pt-6 pb-6 sm:pt-8 sm:pb-8">
+          <div className="text-center space-y-3 sm:space-y-4">
+            <p className="text-base sm:text-lg opacity-90">Tu Nivel de Madurez</p>
+            <div className="flex items-center justify-center gap-3 sm:gap-4">
+              <div className="text-5xl sm:text-7xl font-bold">{resultados.puntajeGlobal}</div>
               <div className="text-left">
-                <div className="text-2xl font-semibold">/100</div>
-                <Badge variant="secondary" className="mt-1">
+                <div className="text-xl sm:text-2xl font-semibold">/100</div>
+                <Badge variant="secondary" className="mt-1 text-xs sm:text-sm">
                   {resultados.nivelGlobal}
                 </Badge>
               </div>
@@ -118,7 +118,7 @@ export function ResultadosView({ sesionId }: ResultadosViewProps) {
       </Card>
 
       {/* Acciones rápidas */}
-      <div className="flex flex-wrap justify-center gap-4">
+      <div className="flex flex-wrap justify-center gap-2 sm:gap-4">
         <Button variant="outline">
           <Download className="mr-2 h-4 w-4" />
           Descargar PDF
@@ -135,7 +135,7 @@ export function ResultadosView({ sesionId }: ResultadosViewProps) {
 
       {/* Tabs de contenido */}
       <Tabs defaultValue="resumen" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-3 h-auto">
           <TabsTrigger value="resumen">Resumen</TabsTrigger>
           <TabsTrigger value="dimensiones">Por Dimensión</TabsTrigger>
           <TabsTrigger value="analisis">Análisis IA</TabsTrigger>

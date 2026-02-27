@@ -213,12 +213,12 @@ export function CuestionarioWizard({ evaluacionId }: CuestionarioWizardProps) {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-4xl mx-auto space-y-4 sm:space-y-6 px-2 sm:px-4">
       {/* Header */}
       <div className="text-center space-y-2">
-        <h1 className="text-3xl font-bold">{data.evaluacion.nombre}</h1>
-        <p className="text-muted-foreground">
-          {data.metadata.totalPreguntas} preguntas · ~{data.metadata.tiempoEstimadoMinutos} minutos
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">{data.evaluacion.nombre}</h1>
+        <p className="text-sm sm:text-base text-muted-foreground">
+          {data.metadata.totalPreguntas} preguntas · ~{data.metadata.tiempoEstimadoMinutos} min
         </p>
       </div>
 
@@ -235,10 +235,11 @@ export function CuestionarioWizard({ evaluacionId }: CuestionarioWizardProps) {
 
       {/* Tabs de navegación */}
       <Tabs value={step} className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-2 h-auto">
           <TabsTrigger 
             value="caracterizacion" 
             onClick={() => setStep("caracterizacion")}
+            className="text-xs sm:text-sm py-2 sm:py-3"
           >
             1. Tu Empresa
           </TabsTrigger>
@@ -246,6 +247,7 @@ export function CuestionarioWizard({ evaluacionId }: CuestionarioWizardProps) {
             value="cuestionario" 
             onClick={() => setStep("cuestionario")}
             disabled={!caracterizacionCompleta || !empresaCompleta}
+            className="text-xs sm:text-sm py-2 sm:py-3"
           >
             2. Evaluación
           </TabsTrigger>

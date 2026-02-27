@@ -97,24 +97,25 @@ export default function AdminDashboard() {
       {/* Header */}
       <header className="border-b bg-card">
         <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-bold">Panel de Administración</h1>
-              <p className="text-muted-foreground">Sistema de Evaluación de Madurez</p>
+              <h1 className="text-xl sm:text-2xl font-bold">Panel de Administración</h1>
+              <p className="text-sm text-muted-foreground">Sistema de Evaluación de Madurez</p>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
+              <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
                 <User className="h-4 w-4" />
-                <span>{session?.user?.email}</span>
+                <span className="truncate max-w-[150px] sm:max-w-none">{session?.user?.email}</span>
               </div>
-              <div className="flex gap-2">
-                <Button variant="outline" asChild>
-                  <Link href="/">Ver sitio público</Link>
+              <div className="flex flex-wrap gap-2">
+                <Button variant="outline" size="sm" asChild className="text-xs sm:text-sm">
+                  <Link href="/">Ver sitio</Link>
                 </Button>
-                <Button asChild>
+                <Button size="sm" asChild className="text-xs sm:text-sm">
                   <Link href="/admin/evaluaciones/nueva">
-                    <Plus className="mr-2 h-4 w-4" />
-                    Nueva Evaluación
+                    <Plus className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                    <span className="hidden sm:inline">Nueva Evaluación</span>
+                    <span className="sm:hidden">Nueva</span>
                   </Link>
                 </Button>
                 <Button variant="ghost" size="icon" onClick={() => signOut({ callbackUrl: "/admin/login" })}>
@@ -129,7 +130,7 @@ export default function AdminDashboard() {
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
         {/* Stats Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
           <StatCard
             title="Evaluaciones"
             value={stats?.evaluaciones ?? "-"}
@@ -154,7 +155,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Menu Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {menuItems.map((item) => (
             <Link key={item.href} href={item.href}>
               <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">

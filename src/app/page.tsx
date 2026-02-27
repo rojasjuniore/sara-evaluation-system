@@ -8,26 +8,26 @@ export default function HomePage() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-background to-muted">
       {/* Hero */}
-      <section className="container mx-auto px-4 py-24 text-center">
+      <section className="container mx-auto px-4 py-12 sm:py-16 md:py-24 text-center">
         <Badge variant="secondary" className="mb-4">
           Sistema de Evaluación de Madurez
         </Badge>
-        <h1 className="text-5xl font-bold tracking-tight mb-6">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight mb-6">
           Evalúa y mejora la madurez
           <br />
           <span className="text-primary">de tu organización</span>
         </h1>
-        <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
+        <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8 px-4">
           Diagnóstico inteligente con recomendaciones personalizadas generadas por IA.
           Compara tu empresa contra el benchmark del sector.
         </p>
-        <div className="flex justify-center gap-4">
-          <Button size="lg" asChild>
+        <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 px-4">
+          <Button size="lg" asChild className="w-full sm:w-auto">
             <Link href="/evaluacion/demo">
               Iniciar Evaluación <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
           </Button>
-          <Button size="lg" variant="outline">
+          <Button size="lg" variant="outline" className="w-full sm:w-auto">
             Ver Demo
           </Button>
         </div>
@@ -62,11 +62,11 @@ export default function HomePage() {
       {/* CTA */}
       <section className="container mx-auto px-4 py-16">
         <Card className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white border-0">
-          <CardContent className="py-12 text-center">
-            <h2 className="text-3xl font-bold mb-4">
+          <CardContent className="py-8 sm:py-12 text-center px-4 sm:px-6">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-4">
               ¿Listo para conocer tu nivel de madurez?
             </h2>
-            <p className="text-lg opacity-90 mb-8">
+            <p className="text-sm sm:text-base md:text-lg opacity-90 mb-6 sm:mb-8">
               Completa la evaluación en menos de 15 minutos y recibe tu diagnóstico personalizado
             </p>
             <Button size="lg" variant="secondary" asChild>
